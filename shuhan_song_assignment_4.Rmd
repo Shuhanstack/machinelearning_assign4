@@ -64,7 +64,7 @@ attempt <- append(rep(1, times = 62), rep(0, times = 64))
 bootstrap_estimates <- sapply(1:1000, function(i) mean(sample(attempt, replace = TRUE)))
 
 n <- 126
-fg_true_mean <- 0.492
+fg_true_mean <- mean(attempt)
 fg_true_var <- fg_true_mean*(1 - fg_true_mean)/n
 
 hist(bootstrap_estimates, 
@@ -79,7 +79,12 @@ curve(dnorm(x, mean = fg_true_mean, sd = sqrt(fg_true_var)),
 
 lower_limit_95_ci <- quantile(bootstrap_estimates, probs = 0.05)
 upper_limit_95_ci <- quantile(bootstrap_estimates, probs = 0.95)
-```
+``` 
 
 - The 95% bootstrap confidence interval for Stephen Curry’s “true” end-of-season FG%: (`r round(lower_limit_95_ci, 3)*100`%, `r round(upper_limit_95_ci, 3)*100`%)
+
+- I expect Curry's end-of-season field goal percentage to be lower than 49.2% on 11/19 because his real skill might be between 49.2% and 43% where both percentages are extreme values.
+
+##2. Eigenfaces
+
 

@@ -1,0 +1,67 @@
+---
+title: "Eigenfaces"
+author: "Shuhan Song"
+date: "November 23, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(tree)
+library(randomForest)
+library(gbm)
+library(ROCR)
+library(e1071)
+```
+
+```{r}
+load("faces_array.RData")
+
+# convert each 100 x 100 matrix to a single vector of length 10000.
+face_mat <- sapply(1:1000, function(i) as.numeric(faces_array[, , i])) %>% t
+
+# plot_face function converts vector back to a matrix and plots the resulting image.
+plot_face <- function(image_vector) {
+plot(as.cimg(t(matrix(image_vector, ncol=100))), axes=FALSE, asp=1)
+}
+```
+
+a. find and plot the average face
+```{r}
+plot_face(colMeans(face_mat))
+```
+
+b. PCA test on face_mat, plot PVE and cumulative PVE
+```{r}
+pr_face <- prcomp(face_mat, 
+                   center = TRUE, 
+                   scale = FALSE)
+```
+
+```{r}
+pr_face_var <- pr_face$sdev ^2
+pve <- pr_face_var/sum(pr_face_var)
+```
+
+```{r}
+plot(pve, xlab = "Principal Component", ylab = "Proportion of Variance Explained ", xlim = c(0, 20), ylim = c(0,0.4), type = 'b')
+
+plot(cumsum(pve), xlab = "Principal Component ", ylab = " Cumulative Proportion of Variance Explained ", xlim = c(0, 20), ylim = c(0,1), type = 'b')
+abline(h = 0.5, col = 2, lty = 3, lwd = 1)
+```
+
+- I need 5 PCs to explain at least 50% of the total variation in the face images.
+
+c. Plot the first 16 PC directions as faces
+```{r}
+par(mfrow = c(4, 4))
+for(i in 1:16){
+  plot_face(pr_face$rotation[, i])
+}
+```
+
+
