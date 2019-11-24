@@ -1,0 +1,85 @@
+---
+title: "Homework assignment 4"
+author: "Shuhan Song"
+date: "November 22, 2019"
+output: html_document
+---
+
+```{r setup, echo=FALSE}
+library(knitr)
+# set global chunk options: images will be 7x5 inches
+knitr::opts_chunk$set(fig.width=7, fig.height=5, warning = FALSE, message = FALSE)
+options(digits = 4)
+
+
+## indents are for indenting r code as formatted text
+## They may need to be adjusted depending on your OS
+# if your output looks odd, increase or decrease indent
+indent1 = '    '
+indent2 = '        '
+indent3 = '            '
+```
+
+
+```{r}
+library(tidyverse)
+library(tree)
+library(randomForest)
+library(gbm)
+library(ROCR)
+library(e1071)
+```
+
+##1. Fundamentals of the bootstrap
+
+a. Given a sample of size n, what is the probability that any observation j is not in in a bootstrap sample? Express
+your answer as a function of n.
+
+- __$\frac{n}{3}$__
+
+b. Compute the above probability for n = 1000.
+
+- **`r round(1000/3, 2)`**
+
+c. Verify that your calculation is reasonable by resampling the numbers 1 to 1000 with replace and printing the number of missing observations. 
+
+```{r, indent=indent1}
+x <- seq(1:1000)
+
+resample <- sample(x, replace = TRUE)
+
+unique_obs <- unique(resample)
+
+n_unique_obs <- length(unique_obs)
+
+n_missing <- 1000 - n_unique_obs
+```
+
+- number of missing observations: `r n_missing`
+
+d. Stephen Curry's Field Goal
+```{r, indent=indent1}
+attempt <- append(rep(1, times = 62), rep(0, times = 64))
+
+bootstrap_estimates <- sapply(1:1000, function(i) mean(sample(attempt, replace = TRUE)))
+
+n <- 126
+fg_true_mean <- 0.492
+fg_true_var <- fg_true_mean*(1 - fg_true_mean)/n
+
+hist(bootstrap_estimates, 
+     freq = FALSE, 
+     breaks = 15, 
+     main = "Bootstrap estimate of field goal", 
+     xlim = c(0, 1))
+curve(dnorm(x, mean = fg_true_mean, sd = sqrt(fg_true_var)), 
+      add = TRUE, 
+      col = "red", 
+      lwd = 3)
+
+lower_limit_95_ci <- quantile(bootstrap_estimates, probs = 0.05)
+upper_limit_95_ci <- quantile(bootstrap_estimates, probs = 0.95)
+```
+
+- The 95% bootstrap confidence interval for Stephen Curry’s “true” end-of-season FG%: (`r round(lower_limit_95_ci, 3)*100`%, `r round(upper_limit_95_ci, 3)*100`%)
+
